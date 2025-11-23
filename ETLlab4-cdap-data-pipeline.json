@@ -1,0 +1,720 @@
+{
+    "artifact": {
+        "name": "cdap-data-pipeline",
+        "version": "6.11.1",
+        "scope": "SYSTEM"
+    },
+    "description": "Data Pipeline Application",
+    "name": "ETLlab4",
+    "change": {
+        "description": ""
+    },
+    "parentVersion": "",
+    "config": {
+        "resources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "driverResources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "connections": [
+            {
+                "from": "StockItems",
+                "to": "StockItemsClean"
+            },
+            {
+                "from": "StockItemsClean",
+                "to": "DimStockItem"
+            },
+            {
+                "from": "StockItemsClean",
+                "to": "Joiner2"
+            },
+            {
+                "from": "Joiner2",
+                "to": "CreateTotalPrice"
+            },
+            {
+                "from": "CreateTotalPrice",
+                "to": "FactTableOrderLines"
+            },
+            {
+                "from": "Joiner",
+                "to": "FormatDateID"
+            },
+            {
+                "from": "FormatDateID",
+                "to": "Joiner2"
+            },
+            {
+                "from": "Dates",
+                "to": "Remove Duplicates ID"
+            },
+            {
+                "from": "Orders",
+                "to": "Joiner"
+            },
+            {
+                "from": "Orders",
+                "to": "Dates"
+            },
+            {
+                "from": "Remove Duplicates ID",
+                "to": "DimDates"
+            },
+            {
+                "from": "OrderLines",
+                "to": "Joiner"
+            },
+            {
+                "from": "PackageTypes",
+                "to": "SCD2"
+            },
+            {
+                "from": "SCD2",
+                "to": "Generate ID"
+            },
+            {
+                "from": "Generate ID",
+                "to": "DimPackageType"
+            },
+            {
+                "from": "Generate ID",
+                "to": "Joiner2"
+            }
+        ],
+        "postActions": [],
+        "properties": {},
+        "processTimingEnabled": true,
+        "stageLoggingEnabled": true,
+        "stages": [
+            {
+                "name": "StockItems",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "StockItems",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "lab4bucketbi.StockItems.csv",
+                        "path": "gs://lab4bucketbi/StockItems.csv",
+                        "format": "delimited",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "true",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"int\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"Size\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"int\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"int\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"string\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"string\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}",
+                        "delimiter": ";"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"int\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"Size\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"int\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"int\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"string\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"string\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}",
+                "id": "StockItems"
+            },
+            {
+                "name": "StockItemsClean",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "StockItemsClean",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "directives": "rename Size SizeLast\nrename UnitPrice PriceLast\ndrop :ColorID\ndrop :Barcode\nfill-null-or-empty :Brand ' '\nfill-null-or-empty :SizeLast ' '\nfill-null-or-empty :InternalComments ' '\nfill-null-or-empty :Photo ' '\nfill-null-or-empty :MarketingComments ' '",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"long\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"SizeLast\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"long\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"long\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"long\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"PriceLast\",\"type\":[\"double\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"double\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"long\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}",
+                        "workspaceId": "b1c834db-568b-4461-8f96-61e1c66c7a3d",
+                        "precondition": "false"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"long\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"SizeLast\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"long\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"long\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"long\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"PriceLast\",\"type\":[\"double\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"double\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"long\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "StockItems",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"int\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"Size\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"int\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"int\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"string\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"string\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"string\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "StockItemsClean"
+            },
+            {
+                "name": "DimStockItem",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "DimStockItem",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datos_lab4",
+                        "table": "DimStockItem",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false"
+                    }
+                },
+                "inputSchema": [
+                    {
+                        "name": "StockItemsClean",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"long\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"SizeLast\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"long\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"long\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"long\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"PriceLast\",\"type\":[\"double\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"double\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"long\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "DimStockItem"
+            },
+            {
+                "name": "Joiner2",
+                "plugin": {
+                    "name": "Joiner",
+                    "type": "batchjoiner",
+                    "label": "Joiner2",
+                    "artifact": {
+                        "name": "core-plugins",
+                        "version": "2.13.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "selectedFields": "FormatDateID.OrderLineID as OrderLineID,FormatDateID.OrderID as OrderID,FormatDateID.StockItemID as StockItemID,FormatDateID.Description as Description,FormatDateID.Quantity as Quantity,FormatDateID.PickedQuantity as PickedQuantity,FormatDateID.DateID as DateID",
+                        "requiredInputs": "FormatDateID",
+                        "conditionType": "basic",
+                        "joinKeys": "FormatDateID.StockItemID = StockItemsClean.StockItemID = Generate ID.PackageTypeID",
+                        "joinNullKeys": "true",
+                        "distributionEnabled": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "StockItemsClean",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SupplierID\",\"type\":[\"long\",\"null\"]},{\"name\":\"UnitPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OuterPackageID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Brand\",\"type\":[\"string\",\"null\"]},{\"name\":\"SizeLast\",\"type\":[\"string\",\"null\"]},{\"name\":\"LeadTimeDays\",\"type\":[\"long\",\"null\"]},{\"name\":\"QuantityPerOuter\",\"type\":[\"long\",\"null\"]},{\"name\":\"IsChillerStock\",\"type\":[\"long\",\"null\"]},{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"PriceLast\",\"type\":[\"double\",\"null\"]},{\"name\":\"RecommendedRetailPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"TypicalWeightPerUnit\",\"type\":[\"double\",\"null\"]},{\"name\":\"MarketingComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"Photo\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomFields\",\"type\":[\"string\",\"null\"]},{\"name\":\"Tags\",\"type\":[\"string\",\"null\"]},{\"name\":\"SearchDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"long\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidTo\",\"type\":[\"string\",\"null\"]}]}"
+                    },
+                    {
+                        "name": "FormatDateID",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]}]}"
+                    },
+                    {
+                        "name": "Generate ID",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Joiner2"
+            },
+            {
+                "name": "CreateTotalPrice",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "CreateTotalPrice",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "precondition": "false",
+                        "directives": "derive-column TotalPrice Quantity * UnitPrice",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]},{\"name\":\"TotalPrice\",\"type\":[\"double\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]},{\"name\":\"TotalPrice\",\"type\":[\"double\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "Joiner2",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "CreateTotalPrice"
+            },
+            {
+                "name": "FactTableOrderLines",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "FactTableOrderLines",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datos_lab4",
+                        "table": "FactTableOrderLines",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]},{\"name\":\"TotalPrice\",\"type\":[\"double\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]},{\"name\":\"TotalPrice\",\"type\":[\"double\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "CreateTotalPrice",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"TaxRate\",\"type\":[\"double\",\"null\"]},{\"name\":\"UnitPrice\",\"type\":[\"double\",\"null\"]},{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"string\",\"null\"]},{\"name\":\"TotalPrice\",\"type\":[\"double\",\"null\"]}]}"
+                    }
+                ],
+                "id": "FactTableOrderLines"
+            },
+            {
+                "name": "Joiner",
+                "plugin": {
+                    "name": "Joiner",
+                    "type": "batchjoiner",
+                    "label": "Joiner",
+                    "artifact": {
+                        "name": "core-plugins",
+                        "version": "2.13.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "selectedFields": "Orders.OrderDate as DateID,OrderLines.OrderLineID as OrderLineID,OrderLines.OrderID as OrderID,OrderLines.StockItemID as StockItemID,OrderLines.Description as Description,OrderLines.PackageTypeID as PackageTypeID,OrderLines.Quantity as Quantity,OrderLines.PickedQuantity as PickedQuantity",
+                        "requiredInputs": "OrderLines",
+                        "conditionType": "basic",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"string\",\"null\"]}]}",
+                        "joinKeys": "OrderLines.OrderID = Orders.OrderID",
+                        "joinNullKeys": "true",
+                        "distributionEnabled": "false"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "Orders",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"SalespersonPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedByPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"ContactPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"BackorderOrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"ExpectedDeliveryDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomerPurchaseOrderNumber\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsUndersupplyBackordered\",\"type\":[\"int\",\"null\"]},{\"name\":\"Comments\",\"type\":[\"string\",\"null\"]},{\"name\":\"DeliveryInstructions\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"PickingCompletedWhen\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"LastEditedWhen\",\"type\":[\"string\",\"null\"]}]}"
+                    },
+                    {
+                        "name": "OrderLines",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Joiner"
+            },
+            {
+                "name": "FormatDateID",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "FormatDateID",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "precondition": "false",
+                        "directives": "set-type :DateID string\r\nfind-and-replace :DateID s/T.*//g\r\nfind-and-replace :DateID s/-//g\r\nset-type :DateID integer\r\n\r\n\r\n",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"long\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"long\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"long\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "Joiner",
+                        "schema": "{\"type\":\"record\",\"name\":\"join.typeoutput\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "FormatDateID"
+            },
+            {
+                "name": "Dates",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "Dates",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "precondition": "false",
+                        "directives": "drop :CustomerID,:SalespersonPersonID,:PickedByPersonID,:OrderID,:ContactPersonID,:BackorderOrderID,:ExpectedDeliveryDate,:CustomerPurchaseOrderNumber,:IsUndersupplyBackordered,:Comments,:DeliveryInstructions,:InternalComments,:PickingCompletedWhen,:LastEditedBy,:LastEditedWhen\ncopy :OrderDate :DateID true\nsplit-to-columns :DateID -\nfind-and-replace :DateID s/-//g\nset-type :DateID integer \nset-type :DateID_1 integer \nset-type :DateID_2 integer \nset-type :DateID_3 integer \nrename DateID_1 Year\nrename DateID_2 Month\nrename DateID_3 Day",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]}]}",
+                        "workspaceId": "2c2f9efa-bb5d-4567-b65d-214d669064ee"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "Orders",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"SalespersonPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedByPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"ContactPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"BackorderOrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"ExpectedDeliveryDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomerPurchaseOrderNumber\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsUndersupplyBackordered\",\"type\":[\"int\",\"null\"]},{\"name\":\"Comments\",\"type\":[\"string\",\"null\"]},{\"name\":\"DeliveryInstructions\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"PickingCompletedWhen\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"LastEditedWhen\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Dates"
+            },
+            {
+                "name": "Remove Duplicates ID",
+                "plugin": {
+                    "name": "GroupByAggregate",
+                    "type": "batchaggregator",
+                    "label": "Remove Duplicates ID",
+                    "artifact": {
+                        "name": "core-plugins",
+                        "version": "2.13.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "groupByFields": "DateID",
+                        "aggregates": "DateID:First(DateID),Year:First(Year),Month:First(Month),Day:First(Day),OrderDate:First(OrderDate)"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody.typeagg\",\"fields\":[{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "Dates",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Remove-Duplicates-ID"
+            },
+            {
+                "name": "Orders",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "Orders",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "referenceName": "lab4bucketbi.Orders.csv",
+                        "path": "gs://lab4bucketbi/Orders.csv",
+                        "format": "delimited",
+                        "sampleSize": "1000",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"SalespersonPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedByPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"ContactPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"BackorderOrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"ExpectedDeliveryDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomerPurchaseOrderNumber\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsUndersupplyBackordered\",\"type\":[\"int\",\"null\"]},{\"name\":\"Comments\",\"type\":[\"string\",\"null\"]},{\"name\":\"DeliveryInstructions\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"PickingCompletedWhen\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"LastEditedWhen\",\"type\":[\"string\",\"null\"]}]}",
+                        "enableQuotedValues": "true",
+                        "skipHeader": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "delimiter": ";"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"SalespersonPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedByPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"ContactPersonID\",\"type\":[\"int\",\"null\"]},{\"name\":\"BackorderOrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"ExpectedDeliveryDate\",\"type\":[\"string\",\"null\"]},{\"name\":\"CustomerPurchaseOrderNumber\",\"type\":[\"int\",\"null\"]},{\"name\":\"IsUndersupplyBackordered\",\"type\":[\"int\",\"null\"]},{\"name\":\"Comments\",\"type\":[\"string\",\"null\"]},{\"name\":\"DeliveryInstructions\",\"type\":[\"string\",\"null\"]},{\"name\":\"InternalComments\",\"type\":[\"string\",\"null\"]},{\"name\":\"PickingCompletedWhen\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastEditedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"LastEditedWhen\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Orders"
+            },
+            {
+                "name": "DimDates",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "DimDates",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "dataset": "datos_lab4",
+                        "table": "DimDates",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "false",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "TIME",
+                        "timePartitioningType": "DAY",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody.typeagg\",\"fields\":[{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]}]}",
+                        "connection": "${conn(BigQuery Default)}"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody.typeagg\",\"fields\":[{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "Remove Duplicates ID",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody.typeagg\",\"fields\":[{\"name\":\"DateID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Year\",\"type\":[\"int\",\"null\"]},{\"name\":\"Month\",\"type\":[\"int\",\"null\"]},{\"name\":\"Day\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderDate\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "DimDates"
+            },
+            {
+                "name": "OrderLines",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "OrderLines",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "referenceName": "lab4bucketbi.OrderLines.csv",
+                        "path": "gs://lab4bucketbi/OrderLines.csv",
+                        "format": "delimited",
+                        "sampleSize": "1000",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]}]}",
+                        "enableQuotedValues": "true",
+                        "skipHeader": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "delimiter": ";"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"OrderLineID\",\"type\":[\"int\",\"null\"]},{\"name\":\"OrderID\",\"type\":[\"int\",\"null\"]},{\"name\":\"StockItemID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Description\",\"type\":[\"string\",\"null\"]},{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"Quantity\",\"type\":[\"int\",\"null\"]},{\"name\":\"PickedQuantity\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "OrderLines"
+            },
+            {
+                "name": "PackageTypes",
+                "plugin": {
+                    "name": "GCSFile",
+                    "type": "batchsource",
+                    "label": "PackageTypes",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(Cloud Storage Default)}",
+                        "referenceName": "lab4bucketbi.PackageType.csv",
+                        "path": "gs://lab4bucketbi/PackageType.csv",
+                        "format": "delimited",
+                        "sampleSize": "1000",
+                        "enableQuotedValues": "true",
+                        "skipHeader": "true",
+                        "filenameOnly": "false",
+                        "recursive": "false",
+                        "ignoreNonExistingFolders": "false",
+                        "encrypted": "false",
+                        "fileEncoding": "UTF-8",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}",
+                        "delimiter": ";"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "PackageTypes"
+            },
+            {
+                "name": "SCD2",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "SCD2",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "precondition": "false",
+                        "directives": "set-column StartDate CURRENT_DATE()\nset-column EndDate null\nset-column IsCurrent true",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "PackageTypes",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "SCD2"
+            },
+            {
+                "name": "Generate ID",
+                "plugin": {
+                    "name": "Wrangler",
+                    "type": "transform",
+                    "label": "Generate ID",
+                    "artifact": {
+                        "name": "wrangler-transform",
+                        "version": "4.11.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "field": "*",
+                        "expressionLanguage": "jexl",
+                        "precondition": "false",
+                        "directives": "generate-uuid :PackageTypeUuid",
+                        "on-error": "fail-pipeline",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "PackageTypes_SCD2",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"int\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"int\",\"null\"]}]}"
+                    }
+                ],
+                "id": "Generate-ID"
+            },
+            {
+                "name": "DimPackageType",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "DimPackageType",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.24.1",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "useConnection": "true",
+                        "connection": "${conn(BigQuery Default)}",
+                        "dataset": "datos_lab4",
+                        "table": "DimPackageType",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "true",
+                        "readTimeout": "120",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitioningType": "NONE",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "Generate ID",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"PackageTypeID\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeName\",\"type\":[\"string\",\"null\"]},{\"name\":\"ValidFrom\",\"type\":[\"string\",\"null\"]},{\"name\":\"color\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"long\",\"null\"]},{\"name\":\"PackageTypeUuid\",\"type\":[\"string\",\"null\"]}]}"
+                    }
+                ],
+                "id": "DimPackageType"
+            }
+        ],
+        "schedule": "0 1 */1 * *",
+        "engine": "spark",
+        "numOfRecordsPreview": 100,
+        "rangeRecordsPreview": {
+            "min": 1,
+            "max": "5000"
+        },
+        "description": "Data Pipeline Application",
+        "maxConcurrentRuns": 1
+    },
+    "id": "3f94d5b3-5fc3-4793-abe4-b9b171f2b2d7",
+    "createdTimeMillis": 1763848380308,
+    "updatedTimeMillis": 1763856787202,
+    "configHash": -2017597707,
+    "previousHash": "",
+    "revision": 0
+}
